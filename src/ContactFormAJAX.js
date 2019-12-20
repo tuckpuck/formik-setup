@@ -1,6 +1,6 @@
 import React from "react";
 
-export default class ContactForm extends React.Component {
+export default class ContactFormAJAX extends React.Component {
   constructor(props) {
     super(props);
     this.submitForm = this.submitForm.bind(this);

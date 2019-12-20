@@ -1,12 +1,10 @@
 import React from "react";
-import logo from "./logo.svg";
-import "./App.css";
-import ContactForm from "./ContactForm";
+import ContactFormAJAX from "./ContactFormAJAX";
 
 function App() {
   return (
     <div className="App">
-      <ContactForm />
+      <ContactFormAJAX />
     </div>
   );
 }
