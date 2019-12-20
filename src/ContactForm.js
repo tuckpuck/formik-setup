@@ -1,64 +1,53 @@
-import React, { useState } from "react";
-import axios from "axios";
-import { Formik, Form, Field, ErrorMessage } from "formik";
-import * as Yup from "yup";
+import React from "react";
 
-const formSchema = Yup.object().shape({
-  email: Yup.string()
-    .email("Invalid email")
-    .required("Required"),
-  message: Yup.string().required("Required")
-});
+export default class ContactForm extends React.Component {
+  constructor(props) {
+    super(props);
+    this.submitForm = this.submitForm.bind(this);
+    this.state = {
+      status: ""
+    };
+  }
 
-export default () => {
-  /* Server State Handling */
-  const [serverState, setServerState] = useState();
-  const handleServerResponse = (ok, msg) => {
-    setServerState({ ok, msg });
-  };
-  const handleOnSubmit = (values, actions) => {
-    axios({
-      method: "POST",
-      url: "http://formspree.io/YOUR_FORM_ID",
-      data: values
-    })
-      .then(response => {
-        actions.setSubmitting(false);
-        actions.resetForm();
-        handleServerResponse(true, "Thanks!");
-      })
-      .catch(error => {
-        actions.setSubmitting(false);
-        handleServerResponse(false, error.response.data.error);
-      });
-  };
-  return (
-    <div>
-      <h1>Contact Us</h1>
-      <Formik
-        initialValues={{ email: "", message: "" }}
-        onSubmit={handleOnSubmit}
-        validationSchema={formSchema}
+  render() {
+    const { status } = this.state;
+    return (
+      <form
+        onSubmit={this.submitForm}
+        action="https://formspree.io/mbjddegv"
+        method="POST"
       >
-        {({ isSubmitting }) => (
-          <Form id="fs-frm" noValidate>
-            <label htmlFor="email">Email:</label>
-            <Field id="email" type="email" name="email" />
-            <ErrorMessage name="email" className="errorMsg" component="p" />
-            <label htmlFor="message">Message:</label>
-            <Field id="message" name="message" component="textarea" />
-            <ErrorMessage name="message" className="errorMsg" component="p" />
-            <button type="submit" disabled={isSubmitting}>
-              Submit
-            </button>
-            {serverState && (
-              <p className={!serverState.ok ? "errorMsg" : ""}>
-                {serverState.msg}
-              </p>
-            )}
-          </Form>
-        )}
-      </Formik>
-    </div>
-  );
-};
+        <label>Name:</label>
+        <input type="text" name="text" />
+        <br />
+        <label>Email:</label>
+        <input type="email" name="email" />
+        <br />
+        <label>Message:</label>
+        <input type="text" name="message" />
+        <br />
+        {status === "SUCCESS" ? <p>Thanks!</p> : <button>Submit</button>}
+        {status === "ERROR" && <p>Ooops! There was an error.</p>}
+      </form>
+    );
+  }
+
+  submitForm(ev) {
+    ev.preventDefault();
+    const form = ev.target;
+    const data = new FormData(form);
+    const xhr = new XMLHttpRequest();
+    xhr.open(form.method, form.action);
+    xhr.setRequestHeader("Accept", "application/json");
+    xhr.onreadystatechange = () => {
+      if (xhr.readyState !== XMLHttpRequest.DONE) return;
+      if (xhr.status === 200) {
+        form.reset();
+        this.setState({ status: "SUCCESS" });
+      } else {
+        this.setState({ status: "ERROR" });
+      }
+    };
+    xhr.send(data);
+  }
+}
